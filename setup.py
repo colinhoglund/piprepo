@@ -10,7 +10,7 @@ setup(
     entry_points={
         'console_scripts': ['piprepo=piprepo.command:main'],
     },
-    install_requires=["pip>=8"],
+    install_requires=['pip>=8', 'boto3'],
     extras_require={
         'dev': ['flake8']
     },
