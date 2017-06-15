@@ -4,6 +4,7 @@ import errno
 import logging
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 try:
@@ -88,6 +89,7 @@ class RemoteIndex(Index):
     def __exit__(self, exception_type, exception_value, traceback):
         self.write_html()
         self.sync_to_remote()
+        shutil.rmtree(self.directory)
 
     @abc.abstractmethod
     def sync_from_remote():
