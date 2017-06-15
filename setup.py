@@ -11,5 +11,8 @@ setup(
         'console_scripts': ['piprepo=piprepo.command:main'],
     },
     install_requires=["pip>=8"],
+    extras_require={
+        'dev': ['flake8']
+    },
     license="BSD",
 )
