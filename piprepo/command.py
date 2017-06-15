@@ -1,8 +1,7 @@
 import argparse
 import pip
-import tempfile
 from piprepo import __description__
-from piprepo.models import Index
+from piprepo import models
 
 
 def parse_args():
@@ -23,34 +22,33 @@ def parse_args():
     parser.add_argument('-w', '--build-wheels',
                         default=False, action='store_true',
                         help='Build wheels from source packages')
+    parser.add_argument('-r', '--remote', choices=['rsync', 's3'],
+                        help='Sync index to a remote target')
 
     return parser.parse_known_args()
 
 
-def get_working_directory(target):
-    ''' Returns temporary working directory for remote targets '''
-    if target.startswith('s3://'):
-        return tempfile.mkdtemp()
-    elif target.startswith('rsync://'):
-        return tempfile.mkdtemp()
-    return target
+def get_index_class(target_type):
+    ''' Returns index class based on remote target type '''
+    if target_type == 's3':
+        return models.S3Index
+    elif target_type == 'rsync':
+        return models.RsyncIndex
+    return models.LocalIndex
 
 
 def main():
     args, pip_args = parse_args()
-    working_directory = get_working_directory(args.target)
 
-    # let index decide what to download unless forcing wheels and tarballs
-    if not (args.get_source and args.build_wheels):
-        pip.main(['download', '-d', working_directory] + pip_args)
-    # download source tarballs only
-    if args.get_source:
-        pip.main(['download', '-d', working_directory, '--no-binary', ':all:'] + pip_args)
-    # download/compile wheels only
-    if args.build_wheels:
-        pip.main(['wheel', '--wheel-dir', working_directory] + pip_args)
+    with get_index_class(args.remote)(args.target) as index:
+        # let index decide what to download unless forcing wheels and tarballs
+        if not (args.get_source and args.build_wheels):
+            pip.main(['download', '-d', index.directory] + pip_args)
+        # download source tarballs only
+        if args.get_source:
+            pip.main(['download', '-d', index.directory, '--no-binary', ':all:'] + pip_args)
+        # download/compile wheels only
+        if args.build_wheels:
+            pip.main(['wheel', '--wheel-dir', index.directory] + pip_args)
 
-    # create index and write index files
-    Index(working_directory).save()
-
-    # TODO: publish to remote targets
+        index.build_packages()
