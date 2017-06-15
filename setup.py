@@ -12,7 +12,7 @@ setup(
     },
     install_requires=['pip>=8', 'boto3'],
     extras_require={
-        'dev': ['flake8']
+        'dev': ['flake8', 'pytest', 'pytest-cov']
     },
     license="BSD",
 )
