@@ -6,7 +6,12 @@ import os
 import re
 import subprocess
 import tempfile
-from urlparse import urlparse
+try:
+    # python3
+    from urllib.parse import urlparse
+except ImportError:
+    # python2
+    from urlparse import urlparse
 
 
 class Index(object):
@@ -40,7 +45,7 @@ class Index(object):
         self._write_file(self.index_root + 'index.html', lines)
 
         # create package indexes
-        for package, files in self.packages.iteritems():
+        for package, files in self.packages.items():
             versions = ['<a href="../../{0}">{0}</a></br>\n'.format(p) for p in sorted(files)]
             lines = [self.html_header] + versions + [self.html_footer]
             self._write_file(self.index_root + package + '/index.html', lines)
