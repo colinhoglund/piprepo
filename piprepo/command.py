@@ -30,8 +30,7 @@ class Index(object):
 
     def save(self):
         # create index directories
-        indexes = [self.index_root] + [self.index_root + '/' + p for p in self.packages.keys()]
-        for i in indexes:
+        for i in [self.index_root] + [self.index_root + '/' + p for p in self.packages.keys()]:
             try:
                 os.mkdir(i)
             except OSError:
