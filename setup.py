@@ -13,7 +13,7 @@ setup(
     author_email='colinhoglund@gmail.com',
     description=piprepo.__description__,
     long_description=long_description,
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     entry_points={
         'console_scripts': ['piprepo=piprepo.command:main'],
     },
