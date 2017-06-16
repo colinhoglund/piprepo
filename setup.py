@@ -1,5 +1,6 @@
+from codecs import open
 from os import path
-import piprepo
+from piprepo import __description__, __version__
 from setuptools import find_packages, setup
 
 with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
@@ -7,11 +8,11 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name="piprepo",
-    version=piprepo.__version__,
+    version=__version__,
     url="https://github.com/colinhoglund/piprepo",
     author='Colin Hoglund',
     author_email='colinhoglund@gmail.com',
-    description=piprepo.__description__,
+    description=__description__,
     long_description=long_description,
     packages=find_packages(exclude=['tests']),
     entry_points={
