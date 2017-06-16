@@ -58,8 +58,11 @@ class Index(object):
             f.writelines(lines)
 
     def build_local_packages(self):
-        self._build_packages([f for f in os.listdir(self.directory)
-                              if os.path.isfile(self.directory + f)])
+        self._build_packages([
+            f for f in os.listdir(self.directory)
+            if os.path.isfile(self.directory + f) and
+            not f.startswith('.')
+        ])
 
     def _build_packages(self, packages):
         for p in packages:
@@ -98,7 +101,12 @@ class S3Index(Index):
         self._build_packages(s3_packages)
 
     def sync_to_remote(self):
-        files = [path.rstrip('/') + '/' + f for path, _, files in os.walk(self.directory) for f in files]
+        files = [
+            path.rstrip('/') + '/' + f
+            for path, _, files in os.walk(self.directory)
+            for f in files
+            if not f.startswith('.')
+        ]
         for f in [f for f in files if f.endswith('html')]:
             self._put_object(f, 'text/html')
         for f in [f for f in files if not f.endswith('html')]:
