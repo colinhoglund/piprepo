@@ -99,7 +99,12 @@ class S3Index(Index):
 
     def sync_to_remote(self):
         files = [path.rstrip('/') + '/' + f for path, _, files in os.walk(self.directory) for f in files]
-        for f in files:
-            key = self.prefix + f.split(self.directory)[1]
-            body = open(f, 'rb')
-            self.bucket.put_object(Key=key, Body=body)
+        for f in [f for f in files if f.endswith('html')]:
+            self._put_object(f, 'text/html')
+        for f in [f for f in files if not f.endswith('html')]:
+            self._put_object(f, 'binary/octet-stream')
+
+    def _put_object(self, filename, content_type):
+        key = self.prefix + filename.split(self.directory)[1]
+        body = open(filename, 'rb')
+        self.bucket.put_object(Key=key, Body=body, ContentType=content_type)
