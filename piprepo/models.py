@@ -29,15 +29,15 @@ class Index(object):
 
     @abc.abstractmethod
     def build_source_packages():
-        pass
+        'This method should update the packages dict from the source'
 
     @abc.abstractmethod
     def build_destination_packages():
-        pass
+        'This method should update the packages dict from the destination'
 
     @abc.abstractmethod
     def sync_to_destination():
-        pass
+        'This method should sync changes from source to destination'
 
     def __enter__(self):
         self.build_source_packages()
