@@ -35,7 +35,7 @@ def tempindex():
 @pytest.yield_fixture(scope="function")
 def s3_conn():
     mock_s3().start()
-    resource = boto3.resource("s3")
+    resource = boto3.resource('s3', region_name='us-east-1')
     yield resource
     mock_s3().stop()
 
