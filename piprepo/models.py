@@ -118,12 +118,11 @@ class LocalIndex(Index):
 
 class S3Index(Index):
     ''' Context manager for creating an index in AWS S3 '''
-    conn = boto3.resource('s3')
 
     def __init__(self, source, url):
         super(S3Index, self).__init__(source, url)
         parsed_url = urlparse(url)
-        self.bucket = self.conn.Bucket(parsed_url.netloc)
+        self.bucket = boto3.resource('s3').Bucket(parsed_url.netloc)
         self.prefix = parsed_url.path.strip('/') + '/'
 
     def build_source_packages(self):

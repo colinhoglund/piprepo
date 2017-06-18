@@ -32,14 +32,6 @@ def tempindex():
     shutil.rmtree(temp)
 
 
-@pytest.yield_fixture(scope="function")
-def s3_conn():
-    mock_s3().start()
-    resource = boto3.resource("s3")
-    yield resource
-    mock_s3().stop()
-
-
 # Tests
 def test_build(tempindex):
     sys.argv = ['', 'build', tempindex['source']]
@@ -71,17 +63,19 @@ def test_dir_sync(tempindex):
             assert wheel in f.read()
 
 
-def test_s3_sync(tempindex, s3_conn):
-    bucket = s3_conn.create_bucket(Bucket='fake-piprepo-bucket')
+@mock_s3
+def test_s3_sync(tempindex):
+    conn = boto3.resource("s3")
+    bucket = conn.create_bucket(Bucket='fake-piprepo-bucket')
     sys.argv = ['', 'sync', tempindex['source'], 's3://{}/piprepo'.format(bucket.name)]
     command.main()
 
     for wheel in tempindex['wheels']:
-        package = s3_conn.Object(bucket.name, os.path.join('piprepo', wheel))
-        package_index = s3_conn.Object(
+        package = conn.Object(bucket.name, os.path.join('piprepo', wheel))
+        package_index = conn.Object(
             bucket.name, os.path.join('piprepo', 'simple', get_pep503_package_name(wheel), 'index.html')
         )
-        root_index = s3_conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
+        root_index = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
 
         assert s3_object_exists(package)
         assert s3_object_exists(package_index)
