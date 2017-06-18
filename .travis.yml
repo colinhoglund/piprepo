@@ -4,6 +4,6 @@ python:
   - 3.5
   - 3.6
 install:
-  - pip install tox
+  - pip install tox coveralls-python
 script:
   - tox -e $(echo py${TRAVIS_PYTHON_VERSION} | tr -d .)
