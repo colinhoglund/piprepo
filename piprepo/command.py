@@ -7,7 +7,7 @@ from piprepo import models
 def build(args):
     ''' build sub-command function for building local indexes '''
 
-    with models.Index(args.directory):
+    with models.LocalIndex(args.directory, args.directory):
         logging.info('Building index in {}'.format(args.directory))
 
 
@@ -15,10 +15,12 @@ def sync(args):
     ''' sync sub-command function for building and syncing indexes '''
 
     if args.destination.startswith('s3://'):
-        with models.S3Index(args.source, args.destination):
-            logging.info('Syncing index in {} to {}'.format(args.source, args.destination))
+        index_type = models.S3Index
     else:
-        logging.info('Doing nothing.')
+        index_type = models.LocalIndex
+
+    with index_type(args.source, args.destination):
+        logging.info('Syncing index in {} to {}'.format(args.source, args.destination))
 
 
 def main():

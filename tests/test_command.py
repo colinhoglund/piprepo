@@ -9,8 +9,15 @@ def test_build(tmpdir):
     command.main()
 
 
+def test_dir_sync(tmpdir):
+    dir1 = tmpdir.mkdir('dir1')
+    dir2 = tmpdir.mkdir('dir2')
+    sys.argv = ['', 'sync', dir1.dirname, dir2.dirname]
+    command.main()
+
+
 @mock_s3
-def test_sync(tmpdir):
+def test_s3_sync(tmpdir):
     bucket = 'fake-piprepo-bucket'
     conn = boto3.resource('s3')
     conn.create_bucket(Bucket=bucket)
