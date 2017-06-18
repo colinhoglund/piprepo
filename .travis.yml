@@ -7,3 +7,5 @@ install:
   - pip install tox coveralls
 script:
   - tox -e $(echo py${TRAVIS_PYTHON_VERSION} | tr -d .)
+after_success:
+  coveralls
