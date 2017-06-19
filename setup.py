@@ -27,7 +27,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
-        'Intended Audience :: System Administrators'
+        'Intended Audience :: System Administrators',
         'Topic :: Software Development :: Build Tools',
         'Topic :: System :: Systems Administration',
         'License :: OSI Approved :: MIT License',
