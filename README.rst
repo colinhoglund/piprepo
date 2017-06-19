@@ -2,6 +2,9 @@
     :target: https://travis-ci.org/colinhoglund/piprepo
 .. image:: https://coveralls.io/repos/github/colinhoglund/piprepo/badge.svg?branch=master
     :target: https://coveralls.io/github/colinhoglund/piprepo?branch=master
+.. image:: https://img.shields.io/pypi/v/piprepo.svg
+    :target: https://pypi.python.org/pypi/piprepo/
+    :alt: Latest Version
 
 
 piprepo
