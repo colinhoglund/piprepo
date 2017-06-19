@@ -15,19 +15,20 @@ from piprepo import command
 def tempindex():
     temp = tempfile.mkdtemp()
     index = {
-        'wheels': [
-            'fake_package-1.0.0-py2.py3-none-any.whl',
-            'fake_package-2.0.0-py2.py3-none-any.whl',
-            'fake_package2-2.0.0-py2.py3-none-any.whl',
+        'packages': [
+            'Django-1.11.2-py2.py3-none-any.whl',
+            'ansible-2.0.0.0.tar.gz',
+            'ansible-2.3.1.0.tar.gz',
+            'python_http_client-2.2.1-py2.py3-none-any.whl',
         ],
         'source': os.path.join(temp, 'source'),
         'destination': os.path.join(temp, 'destination'),
     }
     os.mkdir(index['source'])
     os.mkdir(index['destination'])
-    for wheel in index['wheels']:
-        with open(os.path.join(index['source'], wheel), 'w') as f:
-            f.write(wheel)
+    for package in index['packages']:
+        with open(os.path.join(index['source'], package), 'w') as f:
+            f.write(package)
     yield index
     shutil.rmtree(temp)
 
@@ -37,30 +38,30 @@ def test_build(tempindex):
     sys.argv = ['', 'build', tempindex['source']]
     command.main()
 
-    for wheel in tempindex['wheels']:
-        source_file = os.path.join(tempindex['source'], wheel)
-        index = os.path.join(tempindex['source'], 'simple', get_pep503_package_name(wheel), 'index.html')
+    for package in tempindex['packages']:
+        source_file = os.path.join(tempindex['source'], package)
+        index = os.path.join(tempindex['source'], 'simple', get_pep503_package_name(package), 'index.html')
         assert os.path.isfile(source_file)
         assert os.path.isfile(index)
         with open(os.path.join(tempindex['source'], 'simple', 'index.html')) as f:
-            assert get_pep503_package_name(wheel) in f.read()
+            assert get_pep503_package_name(package) in f.read()
         with open(index, 'r') as f:
-            assert wheel in f.read()
+            assert package in f.read()
 
 
 def test_dir_sync(tempindex):
     sys.argv = ['', 'sync', tempindex['source'], tempindex['destination']]
     command.main()
 
-    for wheel in tempindex['wheels']:
-        dest_file = os.path.join(tempindex['destination'], wheel)
-        dest_index = os.path.join(tempindex['destination'], 'simple', get_pep503_package_name(wheel), 'index.html')
+    for package in tempindex['packages']:
+        dest_file = os.path.join(tempindex['destination'], package)
+        dest_index = os.path.join(tempindex['destination'], 'simple', get_pep503_package_name(package), 'index.html')
         assert os.path.isfile(dest_file)
         assert os.path.isfile(dest_index)
         with open(os.path.join(tempindex['destination'], 'simple', 'index.html')) as f:
-            assert get_pep503_package_name(wheel) in f.read()
+            assert get_pep503_package_name(package) in f.read()
         with open(dest_index, 'r') as f:
-            assert wheel in f.read()
+            assert package in f.read()
 
 
 @mock_s3
@@ -70,18 +71,18 @@ def test_s3_sync(tempindex):
     sys.argv = ['', 'sync', tempindex['source'], 's3://{}/piprepo'.format(bucket.name)]
     command.main()
 
-    for wheel in tempindex['wheels']:
-        package = conn.Object(bucket.name, os.path.join('piprepo', wheel))
-        package_index = conn.Object(
-            bucket.name, os.path.join('piprepo', 'simple', get_pep503_package_name(wheel), 'index.html')
+    for package in tempindex['packages']:
+        package_obj = conn.Object(bucket.name, os.path.join('piprepo', package))
+        package_index_obj = conn.Object(
+            bucket.name, os.path.join('piprepo', 'simple', get_pep503_package_name(package), 'index.html')
         )
-        root_index = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
+        root_index_obj = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
 
-        assert s3_object_exists(package)
-        assert s3_object_exists(package_index)
-        assert s3_object_exists(root_index)
-        assert get_pep503_package_name(wheel).encode() in root_index.get()['Body'].read()
-        assert wheel.encode() in package_index.get()['Body'].read()
+        assert s3_object_exists(package_obj)
+        assert s3_object_exists(package_index_obj)
+        assert s3_object_exists(root_index_obj)
+        assert get_pep503_package_name(package).encode() in root_index_obj.get()['Body'].read()
+        assert package.encode() in package_index_obj.get()['Body'].read()
 
 
 def s3_object_exists(obj):
