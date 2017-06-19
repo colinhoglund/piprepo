@@ -1,16 +1,23 @@
-[![Build Status](https://travis-ci.org/colinhoglund/piprepo.svg?branch=master)](https://travis-ci.org/colinhoglund/piprepo)
-[![Coverage Status](https://coveralls.io/repos/github/colinhoglund/piprepo/badge.svg?branch=master)](https://coveralls.io/github/colinhoglund/piprepo?branch=master)
+.. image:: https://travis-ci.org/colinhoglund/piprepo.svg?branch=master
+    :target: https://travis-ci.org/colinhoglund/piprepo
+.. image:: https://coveralls.io/repos/github/colinhoglund/piprepo/badge.svg?branch=master
+    :target: https://coveralls.io/github/colinhoglund/piprepo?branch=master
 
-# piprepo
+
+piprepo
+=======
+
 piprepo is a tool for building and sychronizing PEP-503 compliant package repositories.
 
 It currently supports synchronization to a local directory as well as AWS S3.
 
-## Installation
+Installation
+------------
 
 In Progress...
 
-## Usage
+Usage
+-----
 
 Build:
 
@@ -33,7 +40,8 @@ Sync:
     optional arguments:
       -h, --help   show this help message and exit
 
-### Building a local package repo
+Building a local package repo
+.............................
 
 The `piprepo build` command simply builds a package index in the
 specified directory.
@@ -47,7 +55,8 @@ Build a simple package repository from downloaded packages:
 
     piprepo build /tmp/localrepo
 
-### Build and sychronize to a destination repo
+Build and sychronize to a destination repo
+..........................................
 
 The `piprepo sync` command builds in the local source directory and
 syncs packages and index files to the specified destination.
@@ -65,7 +74,8 @@ Synchronize to an S3 bucket:
 
     piprepo sync /tmp/syncrepo s3://my-bucket/piprepo
 
-## Development
+Development
+-----------
 
 Installing development requirements:
 
