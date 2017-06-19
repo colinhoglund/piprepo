@@ -23,8 +23,8 @@ class Index(object):
     html_footer = '</body></html>\n'
 
     def __init__(self, source, destination):
-        self.source = source.rstrip('/') + '/'
-        self.destination = destination.rstrip('/') + '/'
+        self.source = source.rstrip('/')
+        self.destination = destination.rstrip('/')
         self.packages = {}
 
     @abc.abstractmethod
@@ -53,26 +53,26 @@ class Index(object):
     def build_local_packages(self, directory):
         self._build_packages([
             f for f in os.listdir(directory)
-            if os.path.isfile(directory + f) and
+            if os.path.isfile(os.path.join(directory, f)) and
             not f.startswith('.')
         ])
 
     def create_html_indexes(self, directory):
-        index_root = directory + 'simple/'
+        index_root = os.path.join(directory, 'simple')
         # create index directories
-        for i in [index_root] + [index_root + p for p in self.packages.keys()]:
+        for i in [index_root] + [os.path.join(index_root, p) for p in self.packages.keys()]:
             self._create_directory(i)
 
         # create root index
         packages = [self.html_root_anchor.format(p) for p in sorted(self.packages.keys())]
         lines = [self.html_header] + packages + [self.html_footer]
-        self._write_file(index_root + 'index.html', lines)
+        self._write_file(os.path.join(index_root, 'index.html'), lines)
 
         # create package indexes
         for package, files in self.packages.items():
             versions = [self.html_package_anchor.format(p) for p in sorted(files)]
             lines = [self.html_header] + versions + [self.html_footer]
-            self._write_file(index_root + package + '/index.html', lines)
+            self._write_file(os.path.join(index_root, package, 'index.html'), lines)
 
     # hidden helper methods
     def _build_packages(self, packages):
@@ -123,7 +123,7 @@ class S3Index(Index):
         super(S3Index, self).__init__(source, url)
         parsed_url = urlparse(url)
         self.bucket = boto3.resource('s3').Bucket(parsed_url.netloc)
-        self.prefix = parsed_url.path.strip('/') + '/'
+        self.prefix = parsed_url.path.strip('/')
 
     def build_source_packages(self):
         self.build_local_packages(self.source)
