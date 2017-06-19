@@ -27,7 +27,8 @@ def main():
     ''' command line entry point and argument parser '''
 
     parser = argparse.ArgumentParser(description=__description__)
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title='subcommands', dest='subcommands')
+    subparsers.required = True
 
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('directory', help='Local directory to build')

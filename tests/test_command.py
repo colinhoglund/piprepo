@@ -34,6 +34,13 @@ def tempindex():
 
 
 # Tests
+def test_bare_command():
+    with pytest.raises(SystemExit) as ex:
+        sys.argv = ['piprepo']
+        command.main()
+        assert 'usage: piprepo' in ex.message
+
+
 def test_build(tempindex):
     sys.argv = ['', 'build', tempindex['source']]
     command.main()
