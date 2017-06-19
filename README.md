@@ -59,11 +59,11 @@ Download some source tarballs or wheels:
 
 Synchronize to local directory:
 
-    pip sync /tmp/syncrepo /tmp/newrepo
+    piprepo sync /tmp/syncrepo /tmp/newrepo
 
 Synchronize to an S3 bucket:
 
-    pip sync /tmp/syncrepo s3://my-bucket/piprepo
+    piprepo sync /tmp/syncrepo s3://my-bucket/piprepo
 
 ## Development
 
