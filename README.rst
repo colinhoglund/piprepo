@@ -14,7 +14,7 @@ It currently supports synchronization to a local directory as well as AWS S3.
 Installation
 ------------
 
-`pip install piprepo`
+``pip install piprepo``
 
 Usage
 -----
@@ -43,7 +43,7 @@ Sync::
 Building a local package repo
 .............................
 
-The `piprepo build` command simply builds a package index in the
+The ``piprepo build`` command simply builds a package index in the
 specified directory.
 
 Download some source tarballs or wheels::
@@ -58,7 +58,7 @@ Build a simple package repository from downloaded packages::
 Build and sychronize to a destination repo
 ..........................................
 
-The `piprepo sync` command builds in the local source directory and
+The ``piprepo sync`` command builds in the local source directory and
 syncs packages and index files to the specified destination.
 
 Download some source tarballs or wheels::
