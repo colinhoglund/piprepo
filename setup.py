@@ -3,7 +3,7 @@ from os import path
 from piprepo import __description__, __version__
 from setuptools import find_packages, setup
 
-with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+with open(path.join(path.abspath(path.dirname(__file__)), 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
