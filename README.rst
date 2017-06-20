@@ -10,7 +10,7 @@
 piprepo
 =======
 
-piprepo is a tool for building and synchronizing [PEP-503](https://www.python.org/dev/peps/pep-0503/) compliant package repositories.
+piprepo is a tool for building and synchronizing `PEP-503 <https://www.python.org/dev/peps/pep-0503/>`_ compliant package repositories.
 
 It currently supports synchronization to a local directory as well as AWS S3.
 
