@@ -10,7 +10,7 @@
 piprepo
 =======
 
-piprepo is a tool for building and synchronizing PEP-503 compliant package repositories.
+piprepo is a tool for building and synchronizing [PEP-503](https://www.python.org/dev/peps/pep-0503/) compliant package repositories.
 
 It currently supports synchronization to a local directory as well as AWS S3.
 
@@ -46,8 +46,8 @@ Sync::
 Building a local package repo
 .............................
 
-The ``piprepo build`` command simply builds a package index in the
-specified directory.
+The ``piprepo build`` command builds a simple package index
+from packages contained in the specified directory.
 
 Download some source tarballs or wheels::
 
@@ -61,8 +61,9 @@ Build a simple package repository from downloaded packages::
 Build and sychronize to a destination repo
 ..........................................
 
-The ``piprepo sync`` command builds in the local source directory and
-syncs packages and index files to the specified destination.
+The ``piprepo sync`` command builds a simple package index from
+packages contained in the local source directory, and syncs
+packages and index files to the specified destination.
 
 Download some source tarballs or wheels::
 
