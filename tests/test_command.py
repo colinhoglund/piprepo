@@ -1,13 +1,13 @@
 import boto3
 import os
 import pytest
-import re
 import shutil
 import sys
 import tempfile
 from botocore.exceptions import ClientError
 from moto import mock_s3
 from piprepo import command
+from piprepo.utils import normalize
 
 
 # Fixtures
@@ -47,11 +47,11 @@ def test_build(tempindex):
 
     for package in tempindex['packages']:
         source_file = os.path.join(tempindex['source'], package)
-        index = os.path.join(tempindex['source'], 'simple', get_pep503_package_name(package), 'index.html')
+        index = os.path.join(tempindex['source'], 'simple', normalize(package), 'index.html')
         assert os.path.isfile(source_file)
         assert os.path.isfile(index)
         with open(os.path.join(tempindex['source'], 'simple', 'index.html')) as f:
-            assert get_pep503_package_name(package) in f.read()
+            assert normalize(package) in f.read()
         with open(index, 'r') as f:
             assert package in f.read()
 
@@ -62,11 +62,11 @@ def test_dir_sync(tempindex):
 
     for package in tempindex['packages']:
         dest_file = os.path.join(tempindex['destination'], package)
-        dest_index = os.path.join(tempindex['destination'], 'simple', get_pep503_package_name(package), 'index.html')
+        dest_index = os.path.join(tempindex['destination'], 'simple', normalize(package), 'index.html')
         assert os.path.isfile(dest_file)
         assert os.path.isfile(dest_index)
         with open(os.path.join(tempindex['destination'], 'simple', 'index.html')) as f:
-            assert get_pep503_package_name(package) in f.read()
+            assert normalize(package) in f.read()
         with open(dest_index, 'r') as f:
             assert package in f.read()
 
@@ -81,14 +81,14 @@ def test_s3_sync(tempindex):
     for package in tempindex['packages']:
         package_obj = conn.Object(bucket.name, os.path.join('piprepo', package))
         package_index_obj = conn.Object(
-            bucket.name, os.path.join('piprepo', 'simple', get_pep503_package_name(package), 'index.html')
+            bucket.name, os.path.join('piprepo', 'simple', normalize(package), 'index.html')
         )
         root_index_obj = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
 
         assert s3_object_exists(package_obj)
         assert s3_object_exists(package_index_obj)
         assert s3_object_exists(root_index_obj)
-        assert get_pep503_package_name(package).encode() in root_index_obj.get()['Body'].read()
+        assert normalize(package).encode() in root_index_obj.get()['Body'].read()
         assert package.encode() in package_index_obj.get()['Body'].read()
 
 
@@ -101,8 +101,3 @@ def s3_object_exists(obj):
         else:
             raise
     return True
-
-
-def get_pep503_package_name(filename):
-    ''' get PEP-503 normalized name '''
-    return re.sub(r"[-_.]+", "-", os.path.basename(filename).split('-')[0]).lower()

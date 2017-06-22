@@ -3,8 +3,8 @@ import boto3
 import errno
 import filecmp
 import os
-import re
 from shutil import copyfile
+from piprepo.utils import normalize
 try:
     # python3
     from urllib.parse import urlparse
@@ -76,14 +76,12 @@ class Index(object):
 
     # hidden helper methods
     def _build_packages(self, packages):
-        for p in packages:
-            name = os.path.basename(p).split('-')[0]
-            # normalize name as per https://www.python.org/dev/peps/pep-0503/
-            name = re.sub(r"[-_.]+", "-", name).lower()
-            if name in self.packages and p not in self.packages[name]:
-                self.packages[name].append(p)
-            elif name not in self.packages:
-                self.packages[name] = [p]
+        for package in packages:
+            project = normalize(package)
+            if project in self.packages and package not in self.packages[project]:
+                self.packages[project].append(package)
+            elif project not in self.packages:
+                self.packages[project] = [package]
 
     def _create_directory(self, directory):
         try:
