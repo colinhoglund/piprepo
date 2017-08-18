@@ -7,7 +7,16 @@ import tempfile
 from botocore.exceptions import ClientError
 from moto import mock_s3
 from piprepo import command
-from piprepo.utils import normalize
+from piprepo.utils import get_project_name_from_file
+
+PACKAGES = [
+    'Django-1.11.2-py2.py3-none-any.whl',
+    'ansible-2.0.0.0.tar.gz',
+    'ansible-2.3.1.0.tar.gz',
+    'python_http_client-2.2.1-py2.py3-none-any.whl',
+    'avocado-framework-plugin-varianter-yaml-to-mux-53.0.tar.gz',
+    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg'
+]
 
 
 # Fixtures
@@ -15,12 +24,7 @@ from piprepo.utils import normalize
 def tempindex():
     temp = tempfile.mkdtemp()
     index = {
-        'packages': [
-            'Django-1.11.2-py2.py3-none-any.whl',
-            'ansible-2.0.0.0.tar.gz',
-            'ansible-2.3.1.0.tar.gz',
-            'python_http_client-2.2.1-py2.py3-none-any.whl',
-        ],
+        'packages': PACKAGES,
         'source': os.path.join(temp, 'source'),
         'destination': os.path.join(temp, 'destination'),
     }
@@ -47,11 +51,11 @@ def test_build(tempindex):
 
     for package in tempindex['packages']:
         source_file = os.path.join(tempindex['source'], package)
-        index = os.path.join(tempindex['source'], 'simple', normalize(package), 'index.html')
+        index = os.path.join(tempindex['source'], 'simple', get_project_name_from_file(package), 'index.html')
         assert os.path.isfile(source_file)
         assert os.path.isfile(index)
         with open(os.path.join(tempindex['source'], 'simple', 'index.html')) as f:
-            assert normalize(package) in f.read()
+            assert get_project_name_from_file(package) in f.read()
         with open(index, 'r') as f:
             assert package in f.read()
 
@@ -62,11 +66,11 @@ def test_dir_sync(tempindex):
 
     for package in tempindex['packages']:
         dest_file = os.path.join(tempindex['destination'], package)
-        dest_index = os.path.join(tempindex['destination'], 'simple', normalize(package), 'index.html')
+        dest_index = os.path.join(tempindex['destination'], 'simple', get_project_name_from_file(package), 'index.html')
         assert os.path.isfile(dest_file)
         assert os.path.isfile(dest_index)
         with open(os.path.join(tempindex['destination'], 'simple', 'index.html')) as f:
-            assert normalize(package) in f.read()
+            assert get_project_name_from_file(package) in f.read()
         with open(dest_index, 'r') as f:
             assert package in f.read()
 
@@ -81,15 +85,27 @@ def test_s3_sync(tempindex):
     for package in tempindex['packages']:
         package_obj = conn.Object(bucket.name, os.path.join('piprepo', package))
         package_index_obj = conn.Object(
-            bucket.name, os.path.join('piprepo', 'simple', normalize(package), 'index.html')
+            bucket.name, os.path.join('piprepo', 'simple', get_project_name_from_file(package), 'index.html')
         )
         root_index_obj = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
 
         assert s3_object_exists(package_obj)
         assert s3_object_exists(package_index_obj)
         assert s3_object_exists(root_index_obj)
-        assert normalize(package).encode() in root_index_obj.get()['Body'].read()
+        assert get_project_name_from_file(package).encode() in root_index_obj.get()['Body'].read()
         assert package.encode() in package_index_obj.get()['Body'].read()
+
+
+def test_project_names():
+    expected = {
+        'affinitic-recipe-fakezope2eggs',
+        'ansible',
+        'avocado-framework-plugin-varianter-yaml-to-mux',
+        'django',
+        'python-http-client'
+    }
+
+    assert {get_project_name_from_file(p) for p in PACKAGES} == expected
 
 
 def s3_object_exists(obj):
