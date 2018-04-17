@@ -2,5 +2,6 @@
 *.pyc
 .cache/
 .coverage
+.pytest_cache/
 .python-version
 .tox/
