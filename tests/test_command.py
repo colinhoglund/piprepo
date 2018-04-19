@@ -76,7 +76,7 @@ def test_dir_sync(tempindex):
 
 
 @mock_s3
-def test_s3_sync(tempindex):
+def test_s3_sync_with_prefix(tempindex):
     conn = boto3.resource("s3")
     bucket = conn.create_bucket(Bucket='fake-piprepo-bucket')
     sys.argv = ['', 'sync', tempindex['source'], 's3://{}/piprepo'.format(bucket.name)]
@@ -88,6 +88,27 @@ def test_s3_sync(tempindex):
             bucket.name, os.path.join('piprepo', 'simple', get_project_name_from_file(package), 'index.html')
         )
         root_index_obj = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
+
+        assert s3_object_exists(package_obj)
+        assert s3_object_exists(package_index_obj)
+        assert s3_object_exists(root_index_obj)
+        assert get_project_name_from_file(package).encode() in root_index_obj.get()['Body'].read()
+        assert package.encode() in package_index_obj.get()['Body'].read()
+
+
+@mock_s3
+def test_s3_sync_without_prefix(tempindex):
+    conn = boto3.resource("s3")
+    bucket = conn.create_bucket(Bucket='fake-piprepo-bucket')
+    sys.argv = ['', 'sync', tempindex['source'], 's3://{}'.format(bucket.name)]
+    command.main()
+
+    for package in tempindex['packages']:
+        package_obj = conn.Object(bucket.name, package)
+        package_index_obj = conn.Object(
+            bucket.name, os.path.join('simple', get_project_name_from_file(package), 'index.html')
+        )
+        root_index_obj = conn.Object(bucket.name, os.path.join('simple', 'index.html'))
 
         assert s3_object_exists(package_obj)
         assert s3_object_exists(package_index_obj)
