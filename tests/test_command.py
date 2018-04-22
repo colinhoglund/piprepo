@@ -6,7 +6,7 @@ import sys
 import tempfile
 from botocore.exceptions import ClientError
 from moto import mock_s3
-from piprepo import command
+from piprepo import command, models
 from piprepo.utils import get_project_name_from_file
 
 PACKAGES = [
@@ -127,6 +127,12 @@ def test_project_names():
     }
 
     assert {get_project_name_from_file(p) for p in PACKAGES} == expected
+
+
+def test_skip_invalid_package(tempindex):
+    index = models.LocalIndex(tempindex['source'], tempindex['destination'])
+    index._build_packages(['invalidpackage.txt'])
+    assert index.packages == {}
 
 
 def s3_object_exists(obj):
