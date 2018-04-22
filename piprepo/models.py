@@ -2,9 +2,11 @@ import abc
 import boto3
 import errno
 import filecmp
+import logging
 import os
 from shutil import copyfile
 from piprepo.utils import get_project_name_from_file
+from piprepo.exceptions import InvalidFileName
 try:
     # python3
     from urllib.parse import urlparse
@@ -77,7 +79,11 @@ class Index(object):
     # hidden helper methods
     def _build_packages(self, packages):
         for package in packages:
-            project = get_project_name_from_file(package)
+            try:
+                project = get_project_name_from_file(package)
+            except InvalidFileName:
+                logging.warning('Skipping invalid file {}'.format(package))
+                continue
             if project in self.packages and package not in self.packages[project]:
                 self.packages[project].append(package)
             elif project not in self.packages:
