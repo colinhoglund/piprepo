@@ -6,7 +6,7 @@ import sys
 import tempfile
 from botocore.exceptions import ClientError
 from moto import mock_s3
-from piprepo import command, models
+from piprepo import command
 from piprepo.utils import get_project_name_from_file
 
 PACKAGES = [
@@ -15,8 +15,7 @@ PACKAGES = [
     'ansible-2.3.1.0.tar.gz',
     'python_http_client-2.2.1-py2.py3-none-any.whl',
     'avocado-framework-plugin-varianter-yaml-to-mux-53.0.tar.gz',
-    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg',
-    'foursquare-1!2016.9.12.tar.gz'
+    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg'
 ]
 
 
@@ -124,17 +123,10 @@ def test_project_names():
         'ansible',
         'avocado-framework-plugin-varianter-yaml-to-mux',
         'django',
-        'foursquare',
         'python-http-client'
     }
 
     assert {get_project_name_from_file(p) for p in PACKAGES} == expected
-
-
-def test_skip_invalid_package(tempindex):
-    index = models.LocalIndex(tempindex['source'], tempindex['destination'])
-    index._build_packages(['invalidpackage.txt'])
-    assert index.packages == {}
 
 
 def s3_object_exists(obj):
