@@ -15,7 +15,8 @@ PACKAGES = [
     'ansible-2.3.1.0.tar.gz',
     'python_http_client-2.2.1-py2.py3-none-any.whl',
     'avocado-framework-plugin-varianter-yaml-to-mux-53.0.tar.gz',
-    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg'
+    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg',
+    'foursquare-1!2016.9.12.tar.gz'
 ]
 
 
@@ -123,6 +124,7 @@ def test_project_names():
         'ansible',
         'avocado-framework-plugin-varianter-yaml-to-mux',
         'django',
+        'foursquare',
         'python-http-client'
     }
 
