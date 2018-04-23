@@ -1,44 +1,13 @@
 import boto3
 import os
 import pytest
-import shutil
 import sys
-import tempfile
-from botocore.exceptions import ClientError
 from moto import mock_s3
-from piprepo import command, models
+from piprepo import command
 from piprepo.utils import get_project_name_from_file
-
-PACKAGES = [
-    'Django-1.11.2-py2.py3-none-any.whl',
-    'ansible-2.0.0.0.tar.gz',
-    'ansible-2.3.1.0.tar.gz',
-    'python_http_client-2.2.1-py2.py3-none-any.whl',
-    'avocado-framework-plugin-varianter-yaml-to-mux-53.0.tar.gz',
-    'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg',
-    'foursquare-1!2016.9.12.tar.gz'
-]
+from .test_s3 import assert_s3_bucket_contents
 
 
-# Fixtures
-@pytest.yield_fixture(scope="function")
-def tempindex():
-    temp = tempfile.mkdtemp()
-    index = {
-        'packages': PACKAGES,
-        'source': os.path.join(temp, 'source'),
-        'destination': os.path.join(temp, 'destination'),
-    }
-    os.mkdir(index['source'])
-    os.mkdir(index['destination'])
-    for package in index['packages']:
-        with open(os.path.join(index['source'], package), 'w') as f:
-            f.write(package)
-    yield index
-    shutil.rmtree(temp)
-
-
-# Tests
 def test_bare_command():
     with pytest.raises(SystemExit) as ex:
         sys.argv = ['piprepo']
@@ -77,72 +46,10 @@ def test_dir_sync(tempindex):
 
 
 @mock_s3
-def test_s3_sync_with_prefix(tempindex):
+def test_s3_sync(tempindex):
     conn = boto3.resource("s3")
-    bucket = conn.create_bucket(Bucket='fake-piprepo-bucket')
-    sys.argv = ['', 'sync', tempindex['source'], 's3://{}/piprepo'.format(bucket.name)]
-    command.main()
-
-    for package in tempindex['packages']:
-        package_obj = conn.Object(bucket.name, os.path.join('piprepo', package))
-        package_index_obj = conn.Object(
-            bucket.name, os.path.join('piprepo', 'simple', get_project_name_from_file(package), 'index.html')
-        )
-        root_index_obj = conn.Object(bucket.name, os.path.join('piprepo', 'simple', 'index.html'))
-
-        assert s3_object_exists(package_obj)
-        assert s3_object_exists(package_index_obj)
-        assert s3_object_exists(root_index_obj)
-        assert get_project_name_from_file(package).encode() in root_index_obj.get()['Body'].read()
-        assert package.encode() in package_index_obj.get()['Body'].read()
-
-
-@mock_s3
-def test_s3_sync_without_prefix(tempindex):
-    conn = boto3.resource("s3")
-    bucket = conn.create_bucket(Bucket='fake-piprepo-bucket')
+    bucket = conn.create_bucket(Bucket='piprepo')
     sys.argv = ['', 'sync', tempindex['source'], 's3://{}'.format(bucket.name)]
     command.main()
 
-    for package in tempindex['packages']:
-        package_obj = conn.Object(bucket.name, package)
-        package_index_obj = conn.Object(
-            bucket.name, os.path.join('simple', get_project_name_from_file(package), 'index.html')
-        )
-        root_index_obj = conn.Object(bucket.name, os.path.join('simple', 'index.html'))
-
-        assert s3_object_exists(package_obj)
-        assert s3_object_exists(package_index_obj)
-        assert s3_object_exists(root_index_obj)
-        assert get_project_name_from_file(package).encode() in root_index_obj.get()['Body'].read()
-        assert package.encode() in package_index_obj.get()['Body'].read()
-
-
-def test_project_names():
-    expected = {
-        'affinitic-recipe-fakezope2eggs',
-        'ansible',
-        'avocado-framework-plugin-varianter-yaml-to-mux',
-        'django',
-        'foursquare',
-        'python-http-client'
-    }
-
-    assert {get_project_name_from_file(p) for p in PACKAGES} == expected
-
-
-def test_skip_invalid_package(tempindex):
-    index = models.LocalIndex(tempindex['source'], tempindex['destination'])
-    index._build_packages(['invalidpackage.txt'])
-    assert index.packages == {}
-
-
-def s3_object_exists(obj):
-    try:
-        obj.load()
-    except ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            return False
-        else:
-            raise
-    return True
+    assert_s3_bucket_contents(conn, bucket)
