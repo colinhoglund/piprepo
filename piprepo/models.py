@@ -152,9 +152,6 @@ class S3Index(Index):
 
     # hidden helper methods
     def _put_object(self, filename, content_type):
-        if self.prefix:
-            key = self.prefix + filename.split(self.source)[1]
-        else:
-            key = self.prefix + filename.split(self.source)[1].lstrip('/')
+        key = os.path.join(self.prefix, filename[len(self.source):].lstrip('/'))
         body = open(filename, 'rb')
         self.bucket.put_object(Key=key, Body=body, ContentType=content_type)
