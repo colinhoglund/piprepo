@@ -26,10 +26,9 @@ def assert_s3_bucket_contents(conn, bucket, prefix=''):
 def assert_s3_sync(source, destination):
     conn = boto3.resource("s3")
     bucket = conn.create_bucket(Bucket='piprepo')
-    index = S3Index(source, destination)
-    with index:
-        pass
-    assert_s3_bucket_contents(conn, bucket, index.prefix)
+    with S3Index(source, destination) as index:
+        prefix = index.prefix
+    assert_s3_bucket_contents(conn, bucket, prefix)
 
 
 def test_s3_sync_with_prefix(tempindex):
@@ -40,12 +39,22 @@ def test_s3_sync_with_prefix_trailing_slash(tempindex):
     assert_s3_sync(tempindex['source'] + '/', 's3://piprepo/prefix/')
 
 
+def test_s3_sync_with_prefix_from_source_dir(tempindex):
+    os.chdir(tempindex['source'])
+    assert_s3_sync('.', 's3://piprepo/prefix')
+
+
 def test_s3_sync_without_prefix(tempindex):
     assert_s3_sync(tempindex['source'], 's3://piprepo')
 
 
 def test_s3_sync_without_prefix_trailing_slash(tempindex):
     assert_s3_sync(tempindex['source'] + '/', 's3://piprepo/')
+
+
+def test_s3_sync_without_prefix_from_source_dir(tempindex):
+    os.chdir(tempindex['source'])
+    assert_s3_sync('.', 's3://piprepo')
 
 
 def s3_object_exists(obj):
