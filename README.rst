@@ -54,6 +54,11 @@ Download some source tarballs or wheels::
     pip download -d /tmp/localrepo pyyaml
     pip wheel -w /tmp/localrepo pip
 
+Or create a wheel from your source and copy it out:
+
+    python setup.py sdist bdist_wheel
+    cp dist/*.whl /tmp/localrepo/
+
 Build a simple package repository from downloaded packages::
 
     piprepo build /tmp/localrepo
@@ -77,6 +82,13 @@ Synchronize to local directory::
 Synchronize to an S3 bucket::
 
     piprepo sync /tmp/syncrepo s3://my-bucket/piprepo
+
+Install from a local repo
+.........................
+
+Once you have built your repo, you can install using::
+
+    pip install my-pkg --extra-index-url file:///tmp/localrepo/simple/
 
 Development
 -----------
