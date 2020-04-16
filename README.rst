@@ -54,7 +54,7 @@ Download some source tarballs or wheels::
     pip download -d /tmp/localrepo pyyaml
     pip wheel -w /tmp/localrepo pip
 
-Or create a wheel from your source and copy it out:
+Or create a wheel from your source and copy it out (be sure to `pip install wheel`)::
 
     python setup.py sdist bdist_wheel
     cp dist/*.whl /tmp/localrepo/
