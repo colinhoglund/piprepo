@@ -22,12 +22,13 @@ class Index(object):
     html_header = '<!DOCTYPE html><html><body>\n'
     html_root_anchor = '<a href="{0}/">{0}</a></br>\n'
     html_package_anchor = '<a href="../../{0}">{0}</a></br>\n'
+    html_yanked_package_anchor = '<a href="../../{0}" data-yank="{1}">{0}</a></br>\n'
     html_footer = '</body></html>\n'
 
     def __init__(self, source, destination):
         self.source = source.rstrip('/')
         self.destination = destination.rstrip('/')
-        self.packages = {}
+        self.packages = {}  # keys: package name, values: dict of filename -> yank reason (if any)
 
     @abc.abstractmethod
     def build_source_packages():
@@ -57,7 +58,7 @@ class Index(object):
             f for f in os.listdir(directory)
             if os.path.isfile(os.path.join(directory, f)) and
             not f.startswith('.')
-        ])
+        ], directory=directory)
 
     def create_html_indexes(self, directory):
         index_root = os.path.join(directory, 'simple')
@@ -72,22 +73,38 @@ class Index(object):
 
         # create package indexes
         for package, files in self.packages.items():
-            versions = [self.html_package_anchor.format(p) for p in sorted(files)]
+            versions = [self.html_package_anchor.format(p) if files[p] is None
+                        else self.html_yanked_package_anchor.format(p, files[p])
+                        for p in sorted(files)]
             lines = [self.html_header] + versions + [self.html_footer]
             self._write_file(os.path.join(index_root, package, 'index.html'), lines)
 
     # hidden helper methods
-    def _build_packages(self, packages):
+    def _build_packages(self, packages, directory=None):
         for package in packages:
             try:
                 project = get_project_name_from_file(package)
             except InvalidFileName:
                 logging.warning('Skipping invalid file {}'.format(package))
                 continue
-            if project in self.packages and package not in self.packages[project]:
-                self.packages[project].append(package)
-            elif project not in self.packages:
-                self.packages[project] = [package]
+            if package.endswith('.yank'):  # this will not work with S3 until we figure out to read the yank reason from there
+                pkg = package[:-5]
+                if directory:
+                    yank_file = directory + '/' + package
+                else:
+                    yank_file = package
+                with open(yank_file, 'r') as f:
+                    yank_reason = f.read()
+                if project in self.packages and pkg not in self.packages[project].keys():
+                    self.packages[project][pkg] = yank_reason
+                elif project not in self.packages:
+                    self.packages[project] = {pkg: yank_reason}
+            else:
+                if project in self.packages and package not in self.packages[project].keys():
+                    self.packages[project][package] = None
+                elif project not in self.packages:
+                    self.packages[project] = {package: None}
+                # else: encountered .yank before actual file, do nothing
 
     def _create_directory(self, directory):
         try:

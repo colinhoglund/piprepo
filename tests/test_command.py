@@ -4,7 +4,7 @@ import pytest
 import sys
 from moto import mock_s3
 from piprepo import command
-from piprepo.utils import get_project_name_from_file
+from piprepo.utils import get_project_name_from_file, get_yank_reason_package_tag
 from .test_s3 import assert_s3_bucket_contents
 
 
@@ -27,7 +27,10 @@ def test_build(tempindex):
         with open(os.path.join(tempindex['source'], 'simple', 'index.html')) as f:
             assert get_project_name_from_file(package) in f.read()
         with open(index, 'r') as f:
-            assert package in f.read()
+            package_version_list = f.read()
+            assert package in package_version_list
+            if package + '.yank' in tempindex['yanked_packages'].keys():
+                assert get_yank_reason_package_tag(package, tempindex['yanked_packages'][package + '.yank']) in package_version_list
 
 
 def test_dir_sync(tempindex):

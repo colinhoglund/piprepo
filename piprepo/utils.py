@@ -21,3 +21,6 @@ def get_project_name_from_file(filename):
         return normalize(match.group(1))
     # raise an exception if filename is not a valid python package
     raise InvalidFileName(filename)
+
+def get_yank_reason_package_tag(filename, reason):
+    return '{}" data-yank="{}"'.format(filename, reason)
