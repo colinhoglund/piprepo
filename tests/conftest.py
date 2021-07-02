@@ -12,6 +12,9 @@ PACKAGES = [
     'affinitic.recipe.fakezope2eggs-0.3-py2.4.egg',
     'foursquare-1!2016.9.12.tar.gz'
 ]
+YANKED_PACKAGES = {
+    'foursquare-1!2016.9.12.tar.gz.yank': 'yanked because of reasons',
+}
 
 
 @pytest.yield_fixture(scope="function")
@@ -19,6 +22,7 @@ def tempindex():
     temp = tempfile.mkdtemp()
     index = {
         'packages': PACKAGES,
+        'yanked_packages': YANKED_PACKAGES,
         'source': os.path.join(temp, 'source'),
         'destination': os.path.join(temp, 'destination'),
     }
@@ -27,5 +31,8 @@ def tempindex():
     for package in index['packages']:
         with open(os.path.join(index['source'], package), 'w') as f:
             f.write(package)
+    for package, yank_reason in index['yanked_packages'].items():
+        with open(os.path.join(index['source'], package), 'w') as f:
+            f.write(yank_reason)
     yield index
     shutil.rmtree(temp)
