@@ -1,6 +1,6 @@
 import pkg_resources
 import re
-from piprepo.exceptions import InvalidFileName
+from pipindex.exceptions import InvalidFileName
 
 
 def normalize(project):

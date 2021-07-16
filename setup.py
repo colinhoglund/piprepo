@@ -1,22 +1,22 @@
 from codecs import open
 from os import path
-from piprepo import __description__, __version__
+from pipindex import __description__, __version__
 from setuptools import find_packages, setup
 
 with open(path.join(path.abspath(path.dirname(__file__)), 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name="piprepo",
+    name="pipindex",
     version=__version__,
-    url="https://github.com/Oneflow-Inc/piprepo",
+    url="https://github.com/Oneflow-Inc/pipindex",
     author='ci-bot', # credit to original author Colin Hoglund
     author_email='ci-bot@oneflow.org',
     description=__description__,
     long_description=long_description,
     packages=find_packages(exclude=['tests']),
     entry_points={
-        'console_scripts': ['piprepo=piprepo.command:main'],
+        'console_scripts': ['pipindex=pipindex.command:main'],
     },
     install_requires=['pip>=8'],
     extras_require={

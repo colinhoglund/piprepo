@@ -2,16 +2,16 @@ import os
 import pytest
 import sys
 from moto import mock_s3
-from piprepo import command
-from piprepo.utils import get_project_name_from_file
+from pipindex import command
+from pipindex.utils import get_project_name_from_file
 from .test_s3 import assert_s3_bucket_contents
 
 
 def test_bare_command():
     with pytest.raises(SystemExit) as ex:
-        sys.argv = ['piprepo']
+        sys.argv = ['pipindex']
         command.main()
-        assert 'usage: piprepo' in ex.message
+        assert 'usage: pipindex' in ex.message
 
 
 def test_build(tempindex):
@@ -42,4 +42,3 @@ def test_dir_sync(tempindex):
             assert get_project_name_from_file(package) in f.read()
         with open(dest_index, 'r') as f:
             assert package in f.read()
-

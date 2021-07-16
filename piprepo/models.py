@@ -4,8 +4,8 @@ import filecmp
 import logging
 import os
 from shutil import copyfile
-from piprepo.utils import get_project_name_from_file
-from piprepo.exceptions import InvalidFileName
+from pipindex.utils import get_project_name_from_file
+from pipindex.exceptions import InvalidFileName
 try:
     # python3
     from urllib.parse import urlparse
@@ -117,4 +117,3 @@ class LocalIndex(Index):
             if not os.path.exists(dest_file) or not filecmp.cmp(src_file, dest_file):
                 self._create_directory(os.path.dirname(dest_file))
                 copyfile(src_file, dest_file)
-

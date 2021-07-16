@@ -1,7 +1,7 @@
 import argparse
 import logging
-from piprepo import __description__
-from piprepo import models
+from pipindex import __description__
+from pipindex import models
 
 
 def build(args):

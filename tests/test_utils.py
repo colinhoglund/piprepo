@@ -1,4 +1,4 @@
-from piprepo import models, utils
+from pipindex import models, utils
 from .conftest import PACKAGES
 
 
