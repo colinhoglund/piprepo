@@ -1,4 +1,3 @@
-import boto3
 import os
 import pytest
 import sys
@@ -44,12 +43,3 @@ def test_dir_sync(tempindex):
         with open(dest_index, 'r') as f:
             assert package in f.read()
 
-
-@mock_s3
-def test_s3_sync(tempindex):
-    conn = boto3.resource("s3")
-    bucket = conn.create_bucket(Bucket='piprepo')
-    sys.argv = ['', 'sync', tempindex['source'], 's3://{}'.format(bucket.name)]
-    command.main()
-
-    assert_s3_bucket_contents(conn, bucket)

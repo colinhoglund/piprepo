@@ -1,5 +1,4 @@
 import abc
-import boto3
 import errno
 import filecmp
 import logging
@@ -119,39 +118,3 @@ class LocalIndex(Index):
                 self._create_directory(os.path.dirname(dest_file))
                 copyfile(src_file, dest_file)
 
-
-class S3Index(Index):
-    ''' Context manager for creating an index in AWS S3 '''
-
-    def __init__(self, source, url):
-        super(S3Index, self).__init__(source, url)
-        parsed_url = urlparse(url)
-        self.bucket = boto3.resource('s3').Bucket(parsed_url.netloc)
-        self.prefix = parsed_url.path.strip('/')
-
-    def build_source_packages(self):
-        self.build_local_packages(self.source)
-
-    def build_destination_packages(self):
-        s3_packages = [os.path.basename(o.key)
-                       for o in self.bucket.objects.filter(Prefix=self.prefix)
-                       if 'html' not in o.key]
-        self._build_packages(s3_packages)
-
-    def sync_to_destination(self):
-        files = [
-            path.rstrip('/') + '/' + f
-            for path, _, files in os.walk(self.source)
-            for f in files
-            if not f.startswith('.')
-        ]
-        for f in [f for f in files if f.endswith('html')]:
-            self._put_object(f, 'text/html')
-        for f in [f for f in files if not f.endswith('html')]:
-            self._put_object(f, 'binary/octet-stream')
-
-    # hidden helper methods
-    def _put_object(self, filename, content_type):
-        key = os.path.join(self.prefix, filename[len(self.source):].lstrip('/'))
-        body = open(filename, 'rb')
-        self.bucket.put_object(Key=key, Body=body, ContentType=content_type)
