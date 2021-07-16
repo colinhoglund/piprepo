@@ -6,3 +6,4 @@
 .python-version
 .tox/
 .vscode/
+dist/
