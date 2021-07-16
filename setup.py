@@ -9,9 +9,9 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.rst'), encodin
 setup(
     name="piprepo",
     version=__version__,
-    url="https://github.com/colinhoglund/piprepo",
-    author='Colin Hoglund',
-    author_email='colinhoglund@gmail.com',
+    url="https://github.com/Oneflow-Inc/piprepo",
+    author='ci-bot', # credit to original author Colin Hoglund
+    author_email='ci-bot@oneflow.org',
     description=__description__,
     long_description=long_description,
     packages=find_packages(exclude=['tests']),
